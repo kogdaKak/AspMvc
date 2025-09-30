@@ -1,0 +1,46 @@
+﻿@model IEnumerable<AspMVC.Models.Post>
+
+@using AspMVC.Models
+@using static AspMVC.Scripts.Classes.Enums.PublicEnums
+
+@foreach (var post in Model)
+{
+    <!-- карточка поста -->
+    <div class="post-card" data-id="@post.Id" style="border:1px solid #ddd;padding:12px;margin:12px 0;border-radius:8px;">
+        @* Медиа: изображение или видео *@
+        @if (post.MediaType == MediaType.Image && !string.IsNullOrEmpty(post.MediaUrl))
+        {
+            <!-- изображение: lazy loading -->
+            <img src="@post.MediaUrl" alt="image-@post.Id" style="max-width:100%;height:auto;display:block;margin-bottom:8px;" loading="lazy" />
+        }
+        else if (post.MediaType == MediaType.Video && !string.IsNullOrEmpty(post.MediaUrl))
+        {
+            <!-- видео: controls, не автозапуск, playsinline для мобильных -->
+            <video controls preload="none" playsinline style="max-width:100%;height:auto;display:block;margin-bottom:8px;">
+                <source src="@post.MediaUrl" />
+                Ваш браузер не поддерживает видео.
+            </video>
+        }
+        else
+        {
+            <!-- пустой блок, если медиа нет -->
+            <div style="height:80px;background:#f7f7f7;display:flex;align-items:center;justify-content:center;color:#888;margin-bottom:8px;">
+                Нет медиа
+            </div>
+        }
+
+        <!-- Описание -->
+        <p style="margin:0 0 8px 0;">@post.Description</p>
+
+        <!-- Ссылка на источник (если есть) -->
+        @if (!string.IsNullOrEmpty(post.PubRuls))
+        {
+            <p style="margin:0 0 4px 0;">
+                <a href="@post.PubRuls" target="_blank" rel="noopener noreferrer">@post.PubRuls</a>
+            </p>
+        }
+
+        <!-- Время создания -->
+        <small style="color:#666;">@post.CreatedAt.ToLocalTime().ToString("g")</small>
+    </div>
+}

@@ -1,0 +1,80 @@
+﻿@model List<AspMVC.Models.Post>
+
+@{
+    ViewData["Title"] = "Лента постов";
+    var pageSize = ViewBag.PageSize ?? 6;
+}
+
+<!-- Контейнер для постов -->
+<div id="postsContainer">
+    @* Подключаем частичное представление, которое рендерит список постов *@
+    @Html.Partial("_PostListPartial", Model)
+</div>
+
+<!-- sentinel для IntersectionObserver -->
+<div id="scrollSentinel" style="height:1px;"></div>
+
+<!-- Простая ссылка на форму создания поста (для теста) -->
+<p><a href="@Url.Action("Create", "Posts")">Создать тестовый пост</a></p>
+
+<!-- Скрипт бесконечного скролла -->
+<script>
+    // Текущая страница, уже загруженная на странице (1 => первая)
+    let currentPage = 1;
+    const pageSize = @pageSize; // int подставляется сервером
+    let loading = false;        // чтобы не делать параллельных запросов
+
+    // Контейнер и сенсоры
+    const container = document.getElementById('postsContainer');
+    const sentinel = document.getElementById('scrollSentinel');
+
+    // Функция подгрузки следующей страницы
+    async function loadNext() {
+        if (loading) return;
+        loading = true;
+        currentPage++;
+
+        try {
+            // Запросим HTML частичного представления с сервера
+            const res = await fetch(`/Posts/List?page=${currentPage}`);
+            if (!res.ok) {
+                console.error('Ошибка загрузки:', res.status);
+                loading = false;
+                return;
+            }
+
+            const html = await res.text();
+
+            // Если сервер вернул пустую строку — постов больше нет => отключаем observer
+            if (!html || html.trim().length === 0) {
+                observer.disconnect();
+                loading = false;
+                return;
+            }
+
+            // Вставляем полученный HTML в конец контейнера
+            container.insertAdjacentHTML('beforeend', html);
+        } catch (err) {
+            console.error('Ошибка при fetch:', err);
+        } finally {
+            loading = false;
+        }
+    }
+
+    // Создаём IntersectionObserver, чтобы наблюдать sentinel
+    const observer = new IntersectionObserver((entries) => {
+        // Если sentinel виден — запускаем подгрузку
+        if (entries[0].isIntersecting) {
+            loadNext();
+        }
+    }, {
+        root: null,
+        rootMargin: '0px',
+        threshold: 0.1
+    });
+
+    // Начинаем наблюдение
+    observer.observe(sentinel);
+
+    // (Опционально) fallback для старых браузеров можно реализовать через onscroll
+</script>

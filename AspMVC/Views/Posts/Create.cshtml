@@ -1,0 +1,23 @@
+﻿@{
+    ViewData["Title"] = "Создать пост";
+}
+
+<h2>Создать пост (для теста)</h2>
+
+<form asp-action="Create" asp-controller="Posts" method="post" enctype="multipart/form-data">
+    <div>
+        <label>Файл (image/video)</label><br />
+        <input type="file" name="mediaFile" />
+    </div>
+    <div>
+        <label>Описание</label><br />
+        <textarea name="description" rows="3" cols="50"></textarea>
+    </div>
+    <div>
+        <label>Ссылка (git/youtube)</label><br />
+        <input type="url" name="publinks" />
+    </div>
+    <div style="margin-top:8px;">
+        <button type="submit">Создать</button>
+    </div>
+</form>

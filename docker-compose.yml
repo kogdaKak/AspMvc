@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    ports:
+      - "5000:80"       # пробрасываем порт 80 контейнера на порт 5000 хоста
+    depends_on:
+      - db
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      # Строка подключения передаём как переменную конфигурации EF Core прочитает её
+      - ConnectionStrings__DefaultConnection=Host=db;Database=aspportfolio;Username=postgres;Password=example
+    volumes:
+      - ./wwwroot/uploads:/app/wwwroot/uploads  # Монтируем uploads на хост, чтобы файлы сохранялись
+    restart: unless-stopped
+
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: aspportfolio
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: example
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
+
+volumes:
+  pgdata:
