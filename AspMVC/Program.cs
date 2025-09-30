@@ -7,11 +7,11 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-//builder.Services.AddSingleton<AspMVC.Services.PostsRepository>();
-//builder.Services.AddTransient<AspMVC.Services.UploadMedia>();
+//builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))); //Для docker
+builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite("Data Source=portfolio.db")); //Локальный
 
-builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
-
+builder.Services.AddSingleton<AspMVC.Services.PostsRepository>();
+builder.Services.AddTransient<AspMVC.Services.UploadMedia>();
 var app = builder.Build();
 
 using (var scrope = app.Services.CreateScope())

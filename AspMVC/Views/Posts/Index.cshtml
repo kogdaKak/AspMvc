@@ -1,18 +1,50 @@
-﻿@model List<AspMVC.Models.Post>
+﻿@using static AspMVC.Scripts.Classes.Enums.PublicEnums
+@model List<AspMVC.Models.Post>
 
 @{
     ViewData["Title"] = "Лента постов";
     var pageSize = ViewBag.PageSize ?? 6;
 }
 
-<!-- Контейнер для постов -->
-<div id="postsContainer">
-    @* Подключаем частичное представление, которое рендерит список постов *@
-    @Html.Partial("_PostListPartial", Model)
-</div>
-
 <!-- sentinel для IntersectionObserver -->
 <div id="scrollSentinel" style="height:1px;"></div>
+
+<div class="container mt-4">
+    <div class="row">
+        @foreach (var post in Model)
+        {
+            <div class="col-md-4 post-card">
+                <div class="card shadow-sm">
+                    @if (!string.IsNullOrEmpty(post.MediaUrl))
+                    {
+                        if (post.MediaType == MediaType.Image)
+                        {
+                            <img src="@post.MediaUrl" class="card-img-top" />
+                        }
+                        else if (post.MediaType == MediaType.Video)
+                        {
+                            <video controls preload="none" class="card-img-top">
+                                <source src="@post.MediaUrl" type="video/mp4" />
+                                Ваш браузер не поддерживает видео.
+                            </video>
+                        }
+                    }
+                    <div class="card-body">
+                        <p class="card-text">@post.Description</p>
+                        @if (!string.IsNullOrEmpty(post.PubRuls))
+                        {
+                            <a href="@post.PubRuls" class="btn btn-primary source-link" target="_blank">Ссылка на источник</a>
+                        }
+                    </div>
+                    <div class="card-footer text-muted">
+                        @post.CreatedAt.ToString("g")
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
 
 <!-- Простая ссылка на форму создания поста (для теста) -->
 <p><a href="@Url.Action("Create", "Posts")">Создать тестовый пост</a></p>
