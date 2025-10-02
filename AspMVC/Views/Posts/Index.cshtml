@@ -3,32 +3,30 @@
 
 @{
     ViewData["Title"] = "Лента постов";
-    var pageSize = ViewBag.PageSize ?? 6;
+    var pageSize = ViewBag.PageSize ?? 6; // Количество постов на страницу
 }
-
-<!-- sentinel для IntersectionObserver -->
-<div id="scrollSentinel" style="height:1px;"></div>
 
 <div class="container mt-4" id="postsContainer">
     <div class="row">
+        @* Отображаем посты, пришедшие с сервера *@
         @foreach (var post in Model)
         {
-            <div class="col-md-4 post-card">
-                <div class="card shadow-sm">
-                    @if (!string.IsNullOrEmpty(post.MediaUrl))
+            <div class="col-12 d-flex justify-content-center mb-4 post-card">
+                <div class="card shadow-sm fixed-card">
+                    @* Если есть картинка *@
+                    @if (!string.IsNullOrEmpty(post.MediaUrl) && post.MediaType == MediaType.Image)
                     {
-                        if (post.MediaType == MediaType.Image)
-                        {
-                            <img src="@post.MediaUrl" class="card-img-top" />
-                        }
-                        else if (post.MediaType == MediaType.Video)
-                        {
-                            <video controls preload="none" class="card-img-top">
-                                <source src="@post.MediaUrl" type="video/mp4" />
-                                Ваш браузер не поддерживает видео.
-                            </video>
-                        }
+                        <img src="@post.MediaUrl" class="card-img-top fixed-media" />
                     }
+                    @* Если есть видео *@
+                    else if (!string.IsNullOrEmpty(post.MediaUrl) && post.MediaType == MediaType.Video)
+                    {
+                        <video controls preload="none" class="card-img-top fixed-media">
+                            <source src="@post.MediaUrl" type="video/mp4" />
+                            Ваш браузер не поддерживает видео.
+                        </video>
+                    }
+
                     <div class="card-body">
                         <p class="card-text">@post.Description</p>
                         @if (!string.IsNullOrEmpty(post.PubRuls))
@@ -36,6 +34,7 @@
                             <a href="@post.PubRuls" class="btn btn-primary source-link" target="_blank">Ссылка на источник</a>
                         }
                     </div>
+
                     <div class="card-footer text-muted">
                         @post.CreatedAt.ToString("g")
                     </div>
@@ -45,68 +44,15 @@
     </div>
 </div>
 
+@* Sentinel — элемент-наблюдатель внизу страницы *@
+<div id="scrollSentinel" style="height: 1px;"></div>
 
-<!-- Простая ссылка на форму создания поста (для теста) -->
+@* Ссылка для теста *@
 <p><a href="@Url.Action("Create", "Posts")">Создать тестовый пост</a></p>
 
-<!-- Скрипт бесконечного скролла -->
-<script>
-    // Текущая страница, уже загруженная на странице (1 => первая)
-    let currentPage = 1;
-    const pageSize = @pageSize; // int подставляется сервером
-    let loading = false;        // чтобы не делать параллельных запросов
-
-    // Контейнер и сенсоры
-    const container = document.getElementById('postsContainer');
-    const sentinel = document.getElementById('scrollSentinel');
-
-    // Функция подгрузки следующей страницы
-    async function loadNext() {
-        if (loading) return;
-        loading = true;
-        currentPage++;
-
-        try {
-            // Запросим HTML частичного представления с сервера
-            const res = await fetch(`/Posts/List?page=${currentPage}`);
-            if (!res.ok) {
-                console.error('Ошибка загрузки:', res.status);
-                loading = false;
-                return;
-            }
-
-            const html = await res.text();
-
-            // Если сервер вернул пустую строку — постов больше нет => отключаем observer
-            if (!html || html.trim().length === 0) {
-                observer.disconnect();
-                loading = false;
-                return;
-            }
-
-            // Вставляем полученный HTML в конец контейнера
-            container.insertAdjacentHTML('beforeend', html);
-        } catch (err) {
-            console.error('Ошибка при fetch:', err);
-        } finally {
-            loading = false;
-        }
-    }
-
-    // Создаём IntersectionObserver, чтобы наблюдать sentinel
-    const observer = new IntersectionObserver((entries) => {
-        // Если sentinel виден — запускаем подгрузку
-        if (entries[0].isIntersecting) {
-            loadNext();
-        }
-    }, {
-        root: null,
-        rootMargin: '0px',
-        threshold: 0.1
-    });
-
-    // Начинаем наблюдение
-    observer.observe(sentinel);
-
-    // (Опционально) fallback для старых браузеров можно реализовать через onscroll
-</script>
+@section Scripts {
+    <script>
+        // Передаём размер страницы из C# в JS
+        window.pageSize = @pageSize;
+    </script>
+}

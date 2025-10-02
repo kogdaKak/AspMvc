@@ -30,7 +30,8 @@ namespace AspMVC.Controllers
             if (!posts.Any())
                 return Content(string.Empty);
 
-            return PartialView("_PostListPartail", posts);
+            return PartialView("_PostListPartial", posts);
+
         }
 
         [HttpGet]

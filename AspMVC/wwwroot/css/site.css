@@ -1,20 +1,44 @@
-/* wwwroot/css/site.css */
+/* ========== ОБЩИЕ СТИЛИ ========== */
 
-/* Отступ между карточками */
+/* Контейнер карточки */
 .post-card {
-    margin-bottom: 20px;
+    display: flex; /* используем flex для центрирования */
+    justify-content: center; /* карточка всегда по центру */
+    margin-bottom: 20px; /* отступ между карточками */
 }
 
-    /* Ограничиваем медиа внутри карточки */
-    .post-card img,
-    .post-card video {
-        max-width: 100%;
-        height: auto;
-        border-radius: 5px;
+/* Карточка поста с фиксированным размером */
+.fixed-card {
+    width: 936px; /* ширина */
+    height: 366px; /* высота */
+    display: flex;
+    flex-direction: column; /* содержимое сверху вниз */
+}
+
+/* ========== МЕДИА (фото/видео) ========== */
+
+/* Изображения и видео в карточке */
+.fixed-media {
+    max-height: 200px; /* ограничиваем по высоте */
+    width: 100%; /* всегда во всю ширину */
+    object-fit: cover; /* сохраняем пропорции, лишнее обрезаем */
+    border-radius: 5px 5px 0 0; /* закругляем углы сверху */
+}
+
+/* ========== КНОПКА "Ссылка на источник" ========== */
+.source-link {
+    margin-top: 10px;
+    display: inline-block;
+}
+
+/* ========== АДАПТИВНОСТЬ ========== */
+@media (max-width: 768px) {
+    .fixed-card {
+        width: 100%; /* карточка растягивается на всю ширину телефона */
+        height: auto; /* высота динамическая */
     }
 
-    /* Кнопка "Источник" */
-    .post-card .source-link {
-        margin-top: 10px;
-        display: inline-block;
+    .fixed-media {
+        max-height: 180px; /* чуть меньше на мобильных */
     }
+}
