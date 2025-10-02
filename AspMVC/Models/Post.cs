@@ -10,7 +10,7 @@ namespace AspMVC.Models
         public string? MediaUrl { get; set; }
         public PublicEnums.MediaType MediaType { get; set; }
         public string? PubRuls { get; set; }
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime CreatedAt { get; set; }
 
     }
 }

@@ -16,18 +16,18 @@ namespace AspMVC.Controllers
             _uploader = uploader;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            var posts = _repo.GetPaged(1,PageSize).ToList();
+            var posts = await _repo.GetPagedAsync(1, PageSize);
             ViewBag.PageSize = PageSize;
             return View(posts);
         }
 
-        public IActionResult List(int page = 1)
+        public async Task<IActionResult> List(int page = 1)
         {
-            var posts = _repo.GetPaged(page,PageSize).ToList();
+            var posts = await _repo.GetPagedAsync(page, PageSize);
 
-            if(!posts.Any())
+            if (!posts.Any())
                 return Content(string.Empty);
 
             return PartialView("_PostListPartail", posts);
@@ -53,7 +53,7 @@ namespace AspMVC.Controllers
                 PubRuls = pubLinks,
                 CreatedAt = DateTime.UtcNow
             };
-            _repo.Add(post);
+            await _repo.AddAsync(post);
 
             return RedirectToAction(nameof(Index));
         }
