@@ -8,10 +8,12 @@ services:
       db:
         condition: service_healthy
     environment:
-      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_ENVIRONMENT: Production
       ConnectionStrings__DefaultConnection: "Host=db;Database=AspMVC;Username=postgres;Password=example"
     volumes:
       - ./wwwroot/uploads:/app/wwwroot/uploads
+    networks:
+    - aspmvc_net
 
   db:
     image: postgres:16
@@ -22,7 +24,7 @@ services:
       POSTGRES_PASSWORD: example
       POSTGRES_DB: AspMVC
     ports:
-      - "5432:5432"   # если нужен доступ с хоста (RadminVPN)
+      - "5433:5432"   # если нужен доступ с хоста (RadminVPN)
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -30,6 +32,12 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+    - aspmvc_net
 
 volumes:
   postgres_data:
+
+networks:
+  aspmvc_net:
+    driver: bridge
